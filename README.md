@@ -72,6 +72,7 @@ app.use("*", withSupabase);
 ```
 declare module "hono" {
   interface ContextVariableMap {
+    supabase: SupabaseClient;
     user: User | null;
   }
 }
