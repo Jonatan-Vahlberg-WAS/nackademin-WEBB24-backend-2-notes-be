@@ -2,15 +2,21 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 
 import dotenv from "dotenv";
+import { withSupabase } from './middleware/auth.js';
+import noteApp from './routes/notes.js';
 dotenv.config();
 
 const app = new Hono( {
   strict: false
 });
 
+app.use("*", withSupabase)
+
 app.get('/health', (c) => {
   return c.text('Hello Hono!')
 })
+
+app.route("/api/v1/notes", noteApp)
 
 serve({
   fetch: app.fetch,
