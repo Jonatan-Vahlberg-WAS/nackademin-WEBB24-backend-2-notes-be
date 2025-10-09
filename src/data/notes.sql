@@ -23,3 +23,9 @@ INSERT INTO notes (title, content, is_pinned, user_id) VALUES
 ('Travel Bucket List', 'Japan, Iceland, New Zealand, Peru, Norway.', FALSE, NULL),
 ('Pinned Reminder', 'Back up the database every Sunday night.', TRUE, NULL),
 ('Random Thoughts', 'What if reminders could auto-pin based on urgency?', FALSE, NULL);
+
+
+create policy "notes_select_owner_or_admin"
+on public.notes
+for select
+using ( user_id = auth.uid() or public.is_current_user_admin() );

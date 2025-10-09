@@ -6,7 +6,7 @@ const authApp = new Hono({
 });
 
 authApp.post("/signup", async (c) => {
-  const { email, password } = await c.req.json();
+  const { email, password, first_name, last_name } = await c.req.json();
   const sb = c.get("supabase");
 
   try {
@@ -21,6 +21,12 @@ authApp.post("/signup", async (c) => {
         );
       }
       throw response.error;
+    }
+    const userId = response.data.user!.id
+    try {
+        await sb.from("userprofiles").update({first_name, last_name}).eq("id", userId)
+    } catch(err) {
+        console.warn("Could not update user profile", err)
     }
     return c.json({
         message: "User has been registered"
