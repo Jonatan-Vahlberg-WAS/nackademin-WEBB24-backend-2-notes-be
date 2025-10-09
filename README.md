@@ -1,3 +1,4 @@
+https://prod.liveshare.vsengsaas.visualstudio.com/join?97D9474482D3996CB812E6BC26FC33A36F9E
 ```
 npm install
 npm run dev
@@ -8,16 +9,18 @@ open http://localhost:3000
 ```
 
 # Notes api Step by Step
+
 ## Creating a basic `Notes` api
 
 1. Install necessary dependencies
-`npm install @hono/zod-validator @supabase/ssr @supabase/supabase-js dotenv zod`
+   `npm install @hono/zod-validator @supabase/ssr @supabase/supabase-js dotenv zod`
 2. Create a .env file and add the following variables:
-`SUPABASE_URL=your_supabase_url`
-`SUPABASE_ANON_KEY=your_supabase_anon_key`
+   `SUPABASE_URL=your_supabase_url`
+   `SUPABASE_ANON_KEY=your_supabase_anon_key`
 3. Create a types folder and add the following files:
-`types/note.d.ts`
+   `types/note.d.ts`
 4. Fil in src/index.ts to handle enviroment variables.
+
 ```
 import dotenv from "dotenv";
 dotenv.config();
@@ -28,11 +31,13 @@ const app = new Hono( {
 
 //TODO: implement auth later
 ```
+
 5. Create a notes table in supabase based on the note type save the table as a sql file with diffrent steps.
 6. Create a lib folder and add the following files:
-`lib/supabase.ts`
+   `lib/supabase.ts`
 7. Export enviroment variables from the .env file or throw an error if the variables are not set.
 8. Setup a `withSupabase` middleware to handle the supabase client. We are not in tha auth state yet.
+
 ````
 declare module "hono" {
   interface ContextVariableMap {
@@ -135,12 +140,14 @@ async function requireAuth(c: Context, next: Next) {
 ```
 3. Go to supabase and set RLS and create a new policy for the notes table to only allow the user to view their own notes.
 4. Update the notes table to include the user id make this optional at first or remove all notes that do not have a user id.
-5. Update the `GET: notes` route to handle the auth routes.
+5: Set up a auth routes folder and add the following routes:
+`routes/auth.ts` `POST: /signup` `POST: /login` `POST: /logout`
+5. Update the `GET: notes` and `POST: notes` to only get and post notes belonging to user by using the `requireAuth` middleware. 
+For the create auth you also have to add user_id to the body.
 ```
-app.get("/notes", requireAuth, getNotes);
-```
-5. Update the `POST: notes` route to handle the auth routes.
-```
-app.post("/notes", requireAuth, createNote);
-```
-6. Update the `PUT: notes/:id` route to handle the auth routes.
+
+## What is left to do?
+1. Put in some validation of the user data and queries.
+2. Handle errors and status codes in a nicer way.
+
+## What can we do to improve the api?
