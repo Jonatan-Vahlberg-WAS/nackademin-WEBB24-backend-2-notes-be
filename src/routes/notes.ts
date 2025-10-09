@@ -22,9 +22,9 @@ noteApp.get("/", async (c) => {
 
 noteApp.post("/", async (c) => {
   const sb = c.get("supabase");
-  const user = c.get("user")!
+  const user = c.get("user")!;
   let newNote: Note = await c.req.json();
-  newNote.user_id = user.id
+  newNote.user_id = user.id;
   try {
     const query = sb.from("notes").insert(newNote).select().single();
     const response: PostgrestSingleResponse<Note> = await query;
@@ -38,16 +38,29 @@ noteApp.post("/", async (c) => {
 });
 
 noteApp.put("/:uuid", async (c) => {
-  const { uuid } = c.req.param()  
+  const { uuid } = c.req.param();
   const sb = c.get("supabase");
-  const user =c.get("user")!
+  const user = c.get("user")!;
   let updatedNote: Note = await c.req.json();
-  updatedNote.user_id = user.id
+  updatedNote.user_id = user.id;
 
   try {
-    const query = sb.from("notes").update(updatedNote).eq("id", uuid).select().single()
+    const query = sb
+      .from("notes")
+      .update(updatedNote)
+      .eq("id", uuid)
+      .select()
+      .single();
     const response: PostgrestSingleResponse<Note> = await query;
     if (!response.data && response.error) {
+      if (response.error.code === "PGRST116") {
+        return c.json(
+          {
+            message: "Note not found",
+          },
+          404
+        );
+      }
       throw response.error;
     }
     return c.json(response.data, 200);
