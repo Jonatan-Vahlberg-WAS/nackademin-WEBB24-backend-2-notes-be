@@ -3,7 +3,7 @@ create table userprofiles (
     first_name text not null,
     last_name  text not null,
     is_admin   boolean not null default false,
-    created_at TIMESTAMP   NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP   NOT NULL DEFAULT NOW()
 );
 
 create policy "allow access to owner"
