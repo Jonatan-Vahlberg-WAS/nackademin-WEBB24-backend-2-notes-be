@@ -1,9 +1,14 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 
-const app = new Hono()
+import dotenv from "dotenv";
+dotenv.config();
 
-app.get('/', (c) => {
+const app = new Hono( {
+  strict: false
+});
+
+app.get('/health', (c) => {
   return c.text('Hello Hono!')
 })
 

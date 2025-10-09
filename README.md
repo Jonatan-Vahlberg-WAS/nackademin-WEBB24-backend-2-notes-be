@@ -16,8 +16,9 @@ open http://localhost:3000
 `SUPABASE_URL=your_supabase_url`
 `SUPABASE_ANON_KEY=your_supabase_anon_key`
 3. Create a types folder and add the following files:
-`types/note.ts`
+`types/note.d.ts`
 4. Fil in src/index.ts to handle enviroment variables.
+```
 import dotenv from "dotenv";
 dotenv.config();
 
