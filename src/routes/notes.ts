@@ -1,4 +1,4 @@
-import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+import type { PostgrestResponse, PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Hono } from "hono";
 
 const noteApp = new Hono({
@@ -18,6 +18,16 @@ noteApp.get("/", async (c) => {
   } catch (err) {
     return c.json(err, 500);
   }
+});
+
+noteApp.get("/:uuid", async (c) => {
+  const { uuid } = c.req.param();
+  const sb = c.get("supabase");
+  const response: PostgrestSingleResponse<Note> = await sb.from("notes").select("*").eq("id", uuid).single();
+  if (!response.data && response.error) {
+    return c.json(response.error, 404);
+  }
+  return c.json(response.data, 200);
 });
 
 noteApp.post("/", async (c) => {
@@ -67,6 +77,16 @@ noteApp.put("/:uuid", async (c) => {
   } catch (err) {
     return c.json(err, 400);
   }
+});
+
+noteApp.delete("/:uuid", async (c) => {
+  const { uuid } = c.req.param();
+  const sb = c.get("supabase");
+  const response: PostgrestSingleResponse<null> = await sb.from("notes").delete().eq("id", uuid).select().single( );
+  if (!response.data && response.error) {
+    return c.json(response.error, 404);
+  }
+  return c.json({ message: "Note deleted successfully" }, 200);
 });
 
 export default noteApp;

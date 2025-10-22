@@ -5,11 +5,18 @@ import dotenv from "dotenv";
 import { requireAuth, withSupabase } from './middleware/auth.js';
 import noteApp from './routes/notes.js';
 import authApp from './routes/auth.js';
+import { cors } from 'hono/cors';
 dotenv.config();
 
 const app = new Hono( {
   strict: false
 });
+
+app.use("*", cors({
+  origin: 'http://localhost:5173',
+  allowHeaders: ['Authorization', 'Content-Type'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}))
 
 app.use("*", withSupabase)
 
