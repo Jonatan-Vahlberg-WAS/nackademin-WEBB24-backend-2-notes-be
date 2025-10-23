@@ -7,3 +7,12 @@ type Note = {
     created_at?: string;
     updated_at?: string;
 }
+
+type NoteWithUser = Note & {
+    user: {
+        first_name: string,
+        last_name: string,
+        email: string,
+        id: string
+    }
+}

@@ -5,15 +5,31 @@ const noteApp = new Hono({
   strict: false,
 });
 
+const noteSelect = `
+  id,
+  title,
+  content,
+  is_pinned,
+  user_id,
+  created_at,
+  updated_at,
+  user:userprofiles(
+    first_name,
+    last_name,
+    id,
+    email
+  )
+`
+
 noteApp.get("/", async (c) => {
   const sb = c.get("supabase");
   const { is_pinned } = c.req.query();
   try {
-    const query = sb.from("notes").select("*");
+    const query = sb.from("notes").select(noteSelect);
     if (is_pinned === "true") {
       query.eq("is_pinned", true);
     }
-    const response: PostgrestSingleResponse<Note[]> = await query;
+    const response = await query as PostgrestSingleResponse<NoteWithUser[]>; 
     return c.json(response.data || []);
   } catch (err) {
     return c.json(err, 500);
@@ -23,7 +39,7 @@ noteApp.get("/", async (c) => {
 noteApp.get("/:uuid", async (c) => {
   const { uuid } = c.req.param();
   const sb = c.get("supabase");
-  const response: PostgrestSingleResponse<Note> = await sb.from("notes").select("*").eq("id", uuid).single();
+  const response: PostgrestSingleResponse<Note> = await sb.from("notes").select(noteSelect).eq("id", uuid).single();
   if (!response.data && response.error) {
     return c.json(response.error, 404);
   }
@@ -36,7 +52,7 @@ noteApp.post("/", async (c) => {
   let newNote: Note = await c.req.json();
   newNote.user_id = user.id;
   try {
-    const query = sb.from("notes").insert(newNote).select().single();
+    const query = sb.from("notes").insert(newNote).select(noteSelect).single();
     const response: PostgrestSingleResponse<Note> = await query;
     if (!response.data && response.error) {
       throw response.error;
