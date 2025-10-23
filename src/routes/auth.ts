@@ -1,5 +1,6 @@
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Hono } from "hono";
+import { requireAuth } from "../middleware/auth.js";
 
 const authApp = new Hono({
   strict: false,
@@ -64,4 +65,33 @@ authApp.post("/signin", async (c) => {
     );
   }
 });
+
+authApp.get("/me", requireAuth, async (c) => {
+  const sb = c.get("supabase")
+  const user = c.get("user")!
+
+  try {
+    const response: PostgrestSingleResponse<UserProfile> = await sb.from("userprofiles").select("*").eq("id", user.id).single()
+    if(response.error) {
+      if(response.error.code === "PGRST116") {
+        const creationResponse: PostgrestSingleResponse<UserProfile>  =  await sb.from("userprofiles").insert({
+          id: user.id,
+          email: user.email,
+        }). select("*").single()
+        if(creationResponse.data) {
+          return c.json(creationResponse.data)
+        }
+      }
+      throw response.error
+    }
+
+    return c.json(response.data)
+
+  } catch (err) {
+    console.warn(err)
+    return c.json("Error in getting user profile", 404)
+  }
+
+})
+
 export default authApp;
